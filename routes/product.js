@@ -5,7 +5,7 @@ const { ProductModel } = require('../model/Product');
 
 
 router.get('/api/products', async (req, res) => {
-    const products = await ProductModel.find();
+    const products = await ProductModel.find().populate('category');
     res.send(products);
 });
 
@@ -37,7 +37,7 @@ router.post('/api/productFilter', async (req, res) => {
     const productosEncontrados = await ProductModel.find({name: {$regex: filter, $options: 'i'}});
     if(!productosEncontrados.length) return res.send([]);
     const idProductosEncontrados =productosEncontrados.map(x => x._id);
-    const productosSugeridos =  await ProductModel.find({category:productosEncontrados[0].category}).where('_id').nin(idProductosEncontrados).limit(2);
+    const productosSugeridos =  await ProductModel.find({category:productosEncontrados[0].category},['name']).where('_id').nin(idProductosEncontrados).limit(2);
     res.send({encontrados:productosEncontrados,sugeridos:productosSugeridos});
 });
 
